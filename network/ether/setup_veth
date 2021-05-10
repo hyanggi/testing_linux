@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+if [[ "$EUID" -ne 0 ]]; then
+	echo 'Please run as root'
+	exit 1
+fi
+
+ip link add veth1 type veth peer name veth0
+ip link set veth0 up
+ip link set veth1 up

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+ip_proto_num=254
+
+if [[ "$EUID" -ne 0 ]]; then
+	echo 'Please run as root'
+	exit 1
+fi
+
+echo "Testing ipv4..."
+./receiver ipv4 "$ip_proto_num" &
+sleep 1
+./sender 127.0.0.1 "$ip_proto_num"
+wait %
+
+echo "Testing ipv6..."
+./receiver ipv6 "$ip_proto_num" &
+sleep 1
+./sender ::1 "$ip_proto_num"
+wait %

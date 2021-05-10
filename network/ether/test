@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+if [[ $# -lt 2 ]]; then
+	echo 'Please provide 2 Ethernet interfaces to send and receive data.'
+	exit 1
+fi
+
+if1="$1"
+if2="$2"
+
+if ! ip link show "$if1" &> /dev/null; then
+	echo "Interface $if1 not found"
+	exit 1
+fi
+
+if ! ip link show "$if2" &> /dev/null; then
+	echo "Interface $if2 not found"
+	exit 1
+fi
+
+if [[ "$EUID" -ne 0 ]]; then
+	echo 'Please run as root'
+	exit 1
+fi
+
+mac_addr=$(ip link show "$if2" | awk 'FNR==2 {print $2}')
+
+ethertype=1000
+
+
+echo "Testing Ethernet II..."
+./receiver "$if2" "$ethertype" &
+sleep 1
+./sender "$if1" "$mac_addr" "$ethertype"
+wait %
+
+echo "Testing IEEE 802.3..."
+./receiver "$if2" 4 &
+sleep 1
+./sender "$if1" "$mac_addr" 1
+wait %

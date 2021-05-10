@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+port=10000
+if [[ -n "$1" ]]; then
+	protocols="$1"
+else
+	protocols='tcp dccp sctp11 sctp1m udp udplite'
+fi
+
+for protocol in $protocols; do
+	echo "Testing $protocol..."
+	./server "$protocol" "$port" &
+	sleep 1
+	./client 127.0.0.1 "$protocol" "$port"
+	wait %
+done
